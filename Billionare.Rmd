@@ -1,0 +1,70 @@
+---
+title: "Billionaire Analysis"
+author: "18F-0178_M Mustafa Ali"
+date: "12/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(naniar)
+library(visdat)
+
+Billionaires <- read.csv("forbes_billionaires.csv", header = TRUE, na.strings = c("NA","N/A",""))
+head(Billionaires)
+
+glimpse(Billionaires)
+
+sum(duplicated(Billionaires))
+
+Billionaires %>%
+  count(Name) %>%
+  filter (n > 1)
+sum(is.na(Billionaires))
+miss_var_summary(Billionaires)
+
+
+Billionaires %>%
+  arrange(NetWorth) %>%
+  vis_miss()
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+Billionaires_cleaned <- na.omit(Billionaires) %>%
+  distinct(Name, .keep_all = TRUE)
+
+sum(is.na(Billionaires_cleaned))
+
+Billionaires_cleaned %>%
+  count(Name) %>%
+  filter (n > 1)
+
+print(Billionaires$NetWorth)
+
+
+
+Billionaires_cleaned %>%
+  ggplot(aes(x = NetWorth)) + geom_histogram(binwidth = 30, color = "red", fill = "white") + labs(title = "Net Worth")
+
+
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+NetWorthLabel = c("1 - 88.5", "88.6 - 177")
+Billionaires_cleaned$NetWorth_Group = cut(Billionaires_cleaned$NetWorth, breaks = c(1, 88.5, Inf), labels = NetWorthLabel, right = FALSE)
+ggplot(data = Billionaires_cleaned, mapping = aes(x = NetWorth_Group, y = Age)) + geom_boxplot(alpha = 0, color = "red", fill = "white") + geom_jitter(color = "blue", alpha = 0.5) + labs(title = "Forbes Billionaires 2021 by Age")
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
